@@ -104,7 +104,7 @@ return {
     [[
       augroup sidebar_nvim_current_func_update
       autocmd!
-      autocmd CursorHold * lua require"curfunc-sidebar-nvim".update()
+      autocmd CursorHold * lua require"curloc-sidebar-nvim".update()
       augroup END
     ]],
     false
