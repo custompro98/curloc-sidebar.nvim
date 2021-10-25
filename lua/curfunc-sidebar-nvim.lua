@@ -5,6 +5,9 @@ local sidebar = require("sidebar-nvim")
 
 local icon = devicons.get_icon("", vim.bo.filetype, {})
 
+local methodNeedles = { "name", "identifier" }
+local classNeedles = { "name", "identifier" }
+
 local loclist = Loclist:new({
     groups = {
       class = {
@@ -23,12 +26,11 @@ local loclist = Loclist:new({
 })
 
 -- get_node_name tries to find the name field of the node, otherwise falls back to the next
-local function get_node_name(node)
+local function get_node_name(node, needles)
   if not node then
     return "<no match found>"
   end
 
-  local needles = { "name", "identifier" }
   local children = ts_utils.get_named_children(node)
 
   for _, child in ipairs(children) do
@@ -48,7 +50,7 @@ local function get_current_node()
   return ts_utils.get_node_at_cursor(vim.api.nvim_get_current_win())
 end
 
-local function get_current_match(node, rgx)
+local function get_current_match(node, rgxs)
   if not node then
     return nil
   end
@@ -57,10 +59,14 @@ local function get_current_match(node, rgx)
   local target = node
 
   while target do
-    if target and target:type():find(rgx) then
-      found = true
-      break
+    for _, rgx in ipairs(rgxs) do
+      if target and target:type():find(rgx) then
+        found = true
+        break
+      end
     end
+
+    if found then break end
 
     target = target:parent()
   end
@@ -72,8 +78,12 @@ local function update()
   loclist:clear()
 
   local cur_node = get_current_node()
-  local class_name = get_node_name(get_current_match(cur_node, "class"))
-  local method_name = get_node_name(get_current_match(cur_node, "method"))
+
+  local classNode = get_current_match(cur_node, { "class_declaration" })
+  local methodNode = get_current_match(cur_node, { "method", "function" })
+
+  local class_name = get_node_name(classNode, classNeedles)
+  local method_name = get_node_name(methodNode, methodNeedles)
 
   loclist:add_item({
     group = "class",
