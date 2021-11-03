@@ -87,12 +87,20 @@ local function update()
 
   loclist:add_item({
     group = "class",
-    text = class_name,
+    left = {
+      {
+        text = class_name
+      }
+    }
   })
 
   loclist:add_item({
     group = "method",
-    text = method_name == "" and "<anonymous>" or method_name,
+    left = {
+      {
+        text = method_name == "" and "<anonymous>" or method_name,
+      }
+    }
   })
 end
 
